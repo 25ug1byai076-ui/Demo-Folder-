@@ -1,0 +1,630 @@
+A cock and bull story is a tale so exaggerated that it almost becomes a chant of repeated words, repeated claims, and repeated impossibilities. Picture someone insisting again and again that their parrot talks, talks, and talks in fluent French while giving tips, tips, and tips on the stock market. Another storyteller might repeat, repeat, and repeat the claim that they drive an invisible car, invisible here, invisible there, invisible everywhere. Then comes the fisherman who swears his flying fish flew, flew, and flew across the lake before escaping. Finally, the traveler boasts of an endless wallet that fills, fills, and fills itself every morning, though he still borrows, borrows, and borrows money. The repetition makes the absurdity louder, funnier, and more unbelievable — the essence of a cock and bull story.
+
+Would you like me to craft a brand-new cock and bull story that leans heavily on repetition for comic effect, almost like a rhythmic chant?
+
+
+----------------PROGRAM 1-----------------
+ 
+
+def water_jug_dfs(capacity1, capacity2, target):
+    visited = set()
+    path = []
+ 
+    def dfs(jug1, jug2):
+        if (jug1, jug2) in visited:
+            return False
+ 
+        visited.add((jug1, jug2))
+        path.append((jug1, jug2))
+ 
+        if jug1 == target or jug2 == target:
+            return True
+        if dfs(capacity1, jug2):
+            return True
+        if dfs(jug1, capacity2):
+            return True
+        if dfs(0, jug2):
+            return True
+        if dfs(jug1, 0):
+            return True
+        if dfs(max(0, jug1 - (capacity2 - jug2)), min(capacity2, jug1 + jug2)):
+            return True
+        if dfs(min(capacity1, jug1 + jug2), max(0, jug2 - (capacity1 - jug1))):
+            return True
+ 
+        path.pop()
+        return False
+ 
+    dfs(0, 0)
+    return path
+ 
+ 
+capacity1 = 3
+capacity2 = 5
+target = 4
+ 
+solution = water_jug_dfs(capacity1, capacity2, target)
+ 
+if solution:
+    print("Solution Steps:")
+    for step in solution:
+        print(step)
+else:
+    print("No solution found")
+ 
+
+----------------PROGRAM 2-----------------
+ 
+
+from collections import deque
+ 
+Total_M = 3
+Total_C = 3
+ 
+moves = [
+    (2, 0),
+    (0, 2),
+    (1, 1),
+    (1, 0),
+    (0, 1)
+]
+ 
+def is_valid(state):
+    M_left, C_left, boat = state
+    M_right = Total_M - M_left
+    C_right = Total_C - C_left
+    if M_left < 0 or C_left < 0 or M_right < 0 or C_right < 0:
+        return False
+    if M_left > 0 and C_left > M_left:
+        return False
+    if M_right > 0 and C_right > M_right:
+        return False
+    return True
+ 
+def heuristic(state):
+    M_left, C_left, boat = state
+    return M_left + C_left
+ 
+
+def best_first_search():
+    start = (3, 3, 1)
+    goal = (0, 0, 0)
+ 
+    queue = deque([start])
+    visited = set()
+    parent = {}
+ 
+    while queue:
+        queue = deque(sorted(queue, key=heuristic))
+        current = queue.popleft()
+ 
+        if current == goal:
+            return reconstruct_path(parent, current)
+ 
+        if current in visited:
+            continue
+ 
+        visited.add(current)
+ 
+        M_left, C_left, boat = current
+ 
+        for M_move, C_move in moves:
+            if boat == 1:
+                new_state = (
+                    M_left - M_move,
+                    C_left - C_move,
+                    0
+                )
+            else:
+                new_state = (
+                    M_left + M_move,
+                    C_left + C_move,
+                    1
+                )
+ 
+            if is_valid(new_state) and new_state not in visited:
+                queue.append(new_state)
+                parent[new_state] = current
+ 
+    return None
+ 
+ 
+def reconstruct_path(parent, state):
+    path = []
+ 
+    while state:
+        path.append(state)
+        state = parent.get(state)
+ 
+    path.reverse()
+    return path
+ 
+
+solution = best_first_search()
+print("Solution step:")
+for step in solution:
+    print(step)
+print("\nNumber of moves:", len(solution) - 1)
+ 
+
+----------------PROGRAM 3-----------------
+ 
+
+Graph_nodes = {
+    'A': [('B', 6), ('F', 3)],
+    'B': [('C', 3), ('D', 2)],
+    'C': [('D', 1), ('E', 5)],
+    'D': [('E', 8)],
+    'E': [('J', 5)],
+    'F': [('G', 1), ('H', 7)],
+    'G': [('I', 3)],
+    'H': [('I', 2)],
+    'I': [('J', 3)]
+}
+ 
+
+def get_neighbors(v):
+    if v in Graph_nodes:
+        return Graph_nodes[v]
+    else:
+        return []
+ 
+
+def heuristic(n):
+    H_dist = {
+        'A': 11,
+        'B': 6,
+        'C': 5,
+        'D': 7,
+        'E': 3,
+        'F': 6,
+        'G': 5,
+        'H': 3,
+        'I': 1,
+        'J': 0
+    }
+ 
+    return H_dist[n]
+ 
+
+def astarAlgo(start_node, stop_node):
+    open_set = set([start_node])
+    closed_set = set()
+ 
+    g = {}
+    parents = {}
+ 
+    g[start_node] = 0
+    parents[start_node] = start_node
+ 
+    while len(open_set) > 0:
+        n = None
+ 
+        for v in open_set:
+            if n is None or g[v] + heuristic(v) < g[n] + heuristic(n):
+                n = v
+ 
+        if n == stop_node:
+            path = []
+ 
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+ 
+            path.append(start_node)
+            path.reverse()
+ 
+
+            print("Solution found:", path)
+            return path
+ 
+        for (m, weight) in get_neighbors(n):
+            if m not in open_set and m not in closed_set:
+                open_set.add(m)
+                parents[m] = n
+                g[m] = g[n] + weight
+ 
+            else:
+                if g[m] > g[n] + weight:
+                    g[m] = g[n] + weight
+                    parents[m] = n
+ 
+                    if m in closed_set:
+                        closed_set.remove(m)
+                        open_set.add(m)
+ 
+        open_set.remove(n)
+        closed_set.add(n)
+ 
+    print("Solution not found")
+    return None
+ 
+
+astarAlgo('A', 'J')
+ 
+
+-----------------------------------------------------------------------------
+class Graph:
+ 
+    def __init__(self, graph_dict=None, heuristic=None):
+        self.graph = graph_dict or {}
+        self.heuristic = heuristic or {}
+ 
+    def get_neighbors(self, node):
+        return self.graph.get(node, [])
+ 
+    def get_heuristic(self, node):
+        return self.heuristic.get(node, float('inf'))
+ 
+
+def ao_star(graph, start):
+ 
+    closed_list = set()
+    solution_graph = {}
+ 
+    def recur_ao_star(node):
+ 
+        if node in closed_list:
+            return solution_graph[node]
+ 
+        neighbors = graph.get_neighbors(node)
+ 
+        if not neighbors:
+            solution_graph[node] = (0, None)
+            closed_list.add(node)
+            return solution_graph[node]
+ 
+        min_cost = float('inf')
+        best_path = None
+ 
+        for path, cost in neighbors:
+ 
+            total_cost = cost
+            sub_path = []
+ 
+            for sub_node in path:
+                sub_cost, _ = recur_ao_star(sub_node)
+                total_cost += sub_cost
+                sub_path.append(sub_node)
+ 
+            if total_cost < min_cost:
+                min_cost = total_cost
+                best_path = sub_path
+ 
+        solution_graph[node] = (min_cost, best_path)
+        closed_list.add(node)
+ 
+        return solution_graph[node]
+ 
+    recur_ao_star(start)
+    return solution_graph
+ 
+ 
+if __name__ == "__main__":
+ 
+    graph = {
+        'A': [(['B', 'C'], 1), (['D'], 5)],
+        'B': [(['E'], 3)],
+        'C': [(['E'], 1)],
+        'D': [(['G'], 2)],
+        'E': [(['G'], 5)],
+        'G': []
+    }
+ 
+    heuristic = {
+        'A': 6,
+        'B': 2,
+        'C': 2,
+        'D': 4,
+        'E': 0,
+        'G': 0
+    }
+ 
+    g = Graph(graph, heuristic)
+    solution = ao_star(g, 'A')
+    print("Solution Graph:")
+    for node, (cost, path) in solution.items():
+        print(f"Node: {node}, Cost: {cost}, Path: {path}")
+----------------PROGRAM 4-----------------
+ 
+
+N = 8
+ 
+board = [[0] * N for _ in range(N)]
+ 
+
+def print_solution(board):
+    for row in board:
+        print(" ".join('Q' if x else '.' for x in row))
+ 
+
+def is_safe(board, row, col):
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+ 
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+ 
+    for i, j in zip(range(row, N), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+ 
+    return True
+ 
+def solve_nq_util(board, col):
+    if col >= N:
+        return True
+ 
+    for i in range(N):
+        if is_safe(board, i, col):
+            board[i][col] = 1
+ 
+            if solve_nq_util(board, col + 1):
+                return True
+ 
+            board[i][col] = 0
+ 
+    return False
+ 
+
+def solve_nq():
+    if not solve_nq_util(board, 0):
+        print("Solution Doesn't exist")
+        return False
+ 
+    print_solution(board)
+    return True
+ 
+solve_nq()
+ 
+
+----------------PROGRAM 5-----------------
+ 
+
+from itertools import permutations
+import sys
+ 
+
+def travellingSalesmanProblem(graph, s):
+    v = len(graph)
+    vertex = []
+ 
+    for i in range(v):
+        if i != s:
+            vertex.append(i)
+ 
+    min_path = sys.maxsize
+    best_path = []
+ 
+    for perm in permutations(vertex):
+        k = s
+        current_pathweight = 0
+        path = [s]
+ 
+        for j in perm:
+            current_pathweight += graph[k][j]
+            k = j
+            path.append(j)
+ 
+        current_pathweight += graph[k][s]
+        path.append(s)
+ 
+        if current_pathweight < min_path:
+            min_path = current_pathweight
+            best_path = path
+ 
+    return min_path, best_path
+ 
+if __name__ == "__main__":
+    graph = [
+        [0, 10, 15, 20],
+        [10, 0, 35, 25],
+        [15, 35, 0, 30],
+        [20, 25, 30, 0]
+    ]
+ 
+    start_vertex = 0
+    min_cost, path = travellingSalesmanProblem(graph, start_vertex)
+    print("Minimum Cost:", min_cost)
+    print("Optimal Solution:", "->".join(map(str, path)))
+ 
+
+----------------PROGRAM 6-----------------
+ 
+
+class ForwardChaining:
+ 
+    def __init__(self, rules, facts):
+        self.rules = rules
+        self.facts = set(facts)
+ 
+    def apply_rules(self):
+        while True:
+            new_facts = set()
+ 
+            for antecedent, consequent in self.rules:
+                if antecedent.issubset(self.facts):
+                    new_facts.add(consequent)
+ 
+            if not new_facts.difference(self.facts):
+                break
+ 
+            self.facts.update(new_facts)
+ 
+    def get_facts(self):
+        return self.facts
+ 
+ 
+class BackwardChaining:
+ 
+    def __init__(self, rules, facts):
+        self.rules = rules
+        self.facts = set(facts)
+ 
+    def is_fact(self, fact):
+        if fact in self.facts:
+            return True
+ 
+        for antecedent, consequent in self.rules:
+            if consequent == fact:
+                if all(self.is_fact(ant) for ant in antecedent):
+                    self.facts.add(fact)
+                    return True
+ 
+        return False
+ 
+ 
+rules = [
+    ({"has_fur(tiger)"}, "mammal(tiger)"),
+    ({"has_feather(penguin)", "lay_eggs(penguin)"}, "bird(penguin)"),
+    ({"has_feather(sparrow)", "lay_eggs(sparrow)"}, "bird(sparrow)"),
+    ({"has_fur(cat)"}, "mammal(cat)")
+]
+ 
+initial_facts = {
+    "has_fur(tiger)",
+    "has_feather(penguin)",
+    "lay_eggs(penguin)",
+    "lay_eggs(sparrow)",
+    "has_fur(cat)"
+}
+ 
+fc = ForwardChaining(rules, initial_facts)
+fc.apply_rules()
+ 
+print("Forward Chaining:")
+print(fc.get_facts())
+ 
+bc = BackwardChaining(rules, initial_facts)
+ 
+goals = [
+    "mammal(tiger)",
+    "bird(penguin)",
+    "bird(sparrow)",
+    "mammal(cat)"
+]
+ 
+print("Backward Chaining:")
+ 
+for goal in goals:
+    if bc.is_fact(goal):
+        print(f"{goal}->True")
+    else:
+        print(f"{goal}->False")
+ 
+
+----------------PROGRAM 7-----------------
+ 
+
+Program 7
+def negation(literal):
+ 
+    if literal.startswith("~"):
+        return literal[1:]
+ 
+    else:
+        return "~" + literal
+ 
+ 
+def resolve(clause1, clause2):
+ 
+    resolvents = []
+ 
+    for literal1 in clause1:
+ 
+        for literal2 in clause2:
+ 
+            if literal1 == negation(literal2):
+ 
+                resolvent = [
+                    lit for lit in (clause1 + clause2)
+                    if lit != literal1 and lit != literal2
+                ]
+ 
+                resolvents.append(resolvent)
+ 
+    return resolvents
+ 
+ 
+def resolve_all(clauses):
+ 
+    new_clauses = []
+ 
+    for i, clause1 in enumerate(clauses):
+ 
+        for clause2 in clauses[i + 1:]:
+ 
+            for resolvent in resolve(clause1, clause2):
+ 
+                if resolvent not in clauses and resolvent not in new_clauses:
+ 
+                    new_clauses.append(resolvent)
+ 
+    return new_clauses
+ 
+ 
+def resolution(kb):
+ 
+    clauses = [clause.split("|") for clause in kb]
+ 
+    while True:
+ 
+        new_clauses = resolve_all(clauses)
+ 
+        if not new_clauses:
+            return "Satisfiable"
+ 
+        if any(clause == [] for clause in new_clauses):
+            return "Unsatisfiable"
+ 
+        clauses.extend(new_clauses)
+ 
+ 
+knowledge_base = [
+    "(P|Q)",
+    "(~P|R)"
+]
+ 
+knowledge_base = [
+    clause.replace("(", "").replace(")", "")
+    for clause in knowledge_base
+]
+result = resolution(knowledge_base)
+ 
+print(result)
+ 
+
+knowledge_base = [
+    "(P)",
+    "(~P)"
+]
+ 
+knowledge_base = [
+    clause.replace("(", "").replace(")", "")
+    for clause in knowledge_base
+]
+result = resolution(knowledge_base)
+print(result)
+ 
+
+----------------PROGRAM 8-----------------
+ 
+
+import random
+ 
+secret_number = random.randint(1, 100)
+ 
+print("===Number Guessing Game===")
+print("Guess Number between 1 to 100")
+ 
+while True:
+    guess = int(input("Enter your Guess: "))
+    if guess == secret_number:
+        print("Congratulation you got the correct number!")
+        break
+    elif guess < secret_number:
+        print("Too low! Guess the number")
+    else:
+        print("Too High! Guess the number")
